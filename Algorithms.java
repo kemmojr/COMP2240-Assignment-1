@@ -38,9 +38,9 @@ public class Algorithms {
         ArrayList<SchedulerProcess> temp = processes;
         Queue<SchedulerProcess> readyQueue = new PriorityQueue<>();
         SchedulerProcess processing;//Current item that is being processed
-        int numToRemove =0;
-        int time = 0;
-        while (temp.size()>0){
+        int numToRemove =0, processingTimeRemaining =0, time = 0;
+        boolean allItemsExecuted = false;
+        while (allItemsExecuted){
             for (int i = 0; i < temp.size(); i++) {//Iterate through all the elements of temp and and add all of the elements that have a start time that matches current time to the ready queue
                 if (temp.get(i).getArrive()==time){
                     readyQueue.add(temp.get(i));
@@ -51,7 +51,18 @@ public class Algorithms {
                 temp.remove(i);
             }
             numToRemove = 0;
-            processing = readyQueue.poll();
+            if (processingTimeRemaining==0){
+                if (readyQueue.size()>0){
+                    processing = readyQueue.poll();
+                    processingTimeRemaining = processing.getExecSize();
+                } else if (readyQueue.isEmpty() && temp.isEmpty()){
+                    allItemsExecuted = true;
+                }
+
+            }
+            time++;
+            processingTimeRemaining--;
+
 
         }
 
