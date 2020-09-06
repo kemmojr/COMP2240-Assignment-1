@@ -3,11 +3,15 @@ import java.util.*;
 public class Algorithms {
 
     int numOfProcesses;
-    ArrayList<SchedulerProcess> processes;
+    ArrayList<SchedulerProcess> processes, FCFSProcessed, SPNProcessed, PPProcessed, PRRProcessed;
     int dispatchTime;
 
     public Algorithms(Scanner inputReader){
         //Go through the input file and convert all the process data into process classes
+        FCFSProcessed = new ArrayList<>();
+        SPNProcessed = new ArrayList<>();
+        PPProcessed = new ArrayList<>();
+        PRRProcessed = new ArrayList<>();
         String current = "";
         numOfProcesses = 0;
         processes = new ArrayList<>();
@@ -41,12 +45,13 @@ public class Algorithms {
         //Execute the first come first served algorithm
         ArrayList<SchedulerProcess> temp = processes;
         Queue<SchedulerProcess> readyQueue = new LinkedList<>();
-        SchedulerProcess processing;//Current item that is being processed
+        SchedulerProcess processing = null;//Current item that is being processed
         int numToRemove =0, processingTimeRemaining =0, time = 0;
         boolean allItemsExecuted = false;
         while (!allItemsExecuted){
+            int lastTime = time;
             for (int i = 0; i < temp.size(); i++) {//Iterate through all the elements of temp and and add all of the elements that have a start time that matches current time to the ready queue
-                if (temp.get(i).getArrive()==time){
+                if (temp.get(i).getArrive()<=time){
                     readyQueue.add(temp.get(i));
                     numToRemove++;
                 }
@@ -56,17 +61,25 @@ public class Algorithms {
             }
             numToRemove = 0;
             if (processingTimeRemaining==0){
-                if (readyQueue.size()>0){
-
+                if (processing!=null){
+                    processing.setTurnAroundTime(-(processing.getArrive()-time));
+                    FCFSProcessed.add(processing);
+                }
+                if (readyQueue.size()>0){//Add the turnaroundTime to the processing SchedulerProcess
+                    time += dispatchTime;
                     processing = readyQueue.poll();
+                    processing.setWaitingTime(-(processing.getArrive()-time));
                     processingTimeRemaining = processing.getExecSize();
-                } else if (readyQueue.isEmpty() && temp.isEmpty()){
+                } else if (temp.isEmpty()){
                     allItemsExecuted = true;
+                } else {
+                    processing = null;
                 }
 
             }
+
             time++;
-            processingTimeRemaining--;
+            processingTimeRemaining -= time-lastTime;
 
 
         }
