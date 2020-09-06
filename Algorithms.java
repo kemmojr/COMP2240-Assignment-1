@@ -4,6 +4,8 @@ public class Algorithms {
 
     int numOfProcesses;
     ArrayList<SchedulerProcess> processes;
+    int dispatchTime;
+
     public Algorithms(Scanner inputReader){
         //Go through the input file and convert all the process data into process classes
         String current = "";
@@ -11,6 +13,11 @@ public class Algorithms {
         processes = new ArrayList<>();
         while (!current.equalsIgnoreCase("EOF")){
             current = inputReader.next();
+            if (current.equalsIgnoreCase("DISP:")){
+                current = inputReader.next();
+                dispatchTime = Integer.parseInt(current);
+            }
+
             if (current.equalsIgnoreCase("ID:")){
                 SchedulerProcess p = new SchedulerProcess();
                 p.setID(inputReader.next());
@@ -44,7 +51,7 @@ public class Algorithms {
                     numToRemove++;
                 }
             }
-            for (int i = numToRemove-1; i > -1; i--) {
+            for (int i = numToRemove-1; i > -1; i--) {//Remove all of the SchedulerProcesses from the temp list that were added to the readyQueue
                 temp.remove(i);
             }
             numToRemove = 0;
