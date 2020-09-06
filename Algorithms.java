@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Scanner;
+import java.util.*;
 
 public class Algorithms {
 
@@ -36,18 +33,18 @@ public class Algorithms {
     public void FCFS(){
         //Execute the first come first served algorithm
         ArrayList<SchedulerProcess> temp = processes;
-        Queue<SchedulerProcess> readyQueue = new PriorityQueue<>();
+        Queue<SchedulerProcess> readyQueue = new LinkedList<>();
         SchedulerProcess processing;//Current item that is being processed
         int numToRemove =0, processingTimeRemaining =0, time = 0;
         boolean allItemsExecuted = false;
-        while (allItemsExecuted){
+        while (!allItemsExecuted){
             for (int i = 0; i < temp.size(); i++) {//Iterate through all the elements of temp and and add all of the elements that have a start time that matches current time to the ready queue
                 if (temp.get(i).getArrive()==time){
                     readyQueue.add(temp.get(i));
                     numToRemove++;
                 }
             }
-            for (int i = 0; i < numToRemove; i++) {
+            for (int i = numToRemove-1; i > -1; i--) {
                 temp.remove(i);
             }
             numToRemove = 0;

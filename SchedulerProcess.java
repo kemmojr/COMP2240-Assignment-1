@@ -45,4 +45,13 @@ public class SchedulerProcess {
     public int getPriority() {
         return priority;
     }
+
+    public boolean isBefore(SchedulerProcess p){
+        String[] p1S = this.ID.split(""), p2S = p.ID.split("");
+        int p1 = Integer.parseInt(p1S[1]);
+        int p2 = Integer.parseInt(p2S[1]);
+        if (p1<p2)
+            return true;
+        return false;
+    }
 }
