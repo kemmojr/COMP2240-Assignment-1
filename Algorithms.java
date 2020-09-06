@@ -49,7 +49,6 @@ public class Algorithms {
         int numToRemove =0, processingTimeRemaining =0, time = 0;
         boolean allItemsExecuted = false;
         while (!allItemsExecuted){
-            int lastTime = time;
             for (int i = 0; i < temp.size(); i++) {//Iterate through all the elements of temp and and add all of the elements that have a start time that matches current time to the ready queue
                 if (temp.get(i).getArrive()<=time){
                     readyQueue.add(temp.get(i));
@@ -79,7 +78,7 @@ public class Algorithms {
             }
 
             time++;
-            processingTimeRemaining -= time-lastTime;
+            processingTimeRemaining--;
 
 
         }
