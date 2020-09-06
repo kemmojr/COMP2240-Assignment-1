@@ -57,6 +57,7 @@ public class Algorithms {
             numToRemove = 0;
             if (processingTimeRemaining==0){
                 if (readyQueue.size()>0){
+
                     processing = readyQueue.poll();
                     processingTimeRemaining = processing.getExecSize();
                 } else if (readyQueue.isEmpty() && temp.isEmpty()){

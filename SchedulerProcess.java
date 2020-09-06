@@ -6,6 +6,8 @@ public class SchedulerProcess {
     int arrive;
     int execSize;
     int priority;
+    int turnAroundTime;
+    int waitingTime;
 
     public SchedulerProcess(){
         ID = null;
@@ -30,6 +32,14 @@ public class SchedulerProcess {
         priority = p;
     }
 
+    public void setTurnAroundTime(int t) {
+        turnAroundTime = t;
+    }
+
+    public void setWaitingTime(int w) {
+        waitingTime = w;
+    }
+
     public String getID() {
         return ID;
     }
@@ -44,6 +54,14 @@ public class SchedulerProcess {
 
     public int getPriority() {
         return priority;
+    }
+
+    public int getTurnAroundTime() {
+        return turnAroundTime;
+    }
+
+    public int getWaitingTime() {
+        return waitingTime;
     }
 
     public boolean isBefore(SchedulerProcess p){
