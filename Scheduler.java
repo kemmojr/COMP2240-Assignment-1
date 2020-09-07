@@ -22,8 +22,6 @@ public class Scheduler {
         //Output
         a.getOutput();
 
-        System.out.println("FCFS:");
-
         //System.out.println();
     }
 }
