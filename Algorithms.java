@@ -136,6 +136,56 @@ public class Algorithms {
         }
     }
 
+    public void PP(){
+        ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
+        Comparator<SchedulerProcess> c = new SchedulerProcessComparator();
+        Queue<SchedulerProcess> readyQueue = new PriorityQueue<>(processes.size(), c);
+        SchedulerProcess processing = null;//Current item that is being processed = processing
+        int processingTimeRemaining =0, time = 0, processRuntime = -1;
+        boolean allItemsExecuted = false;
+        for (int i = 0; i < 1; i++) {
+            updateReadyQueue(temp,readyQueue,time);
+        }
+        /*while (!allItemsExecuted){
+            updateReadyQueue(temp,readyQueue,time);
+            if (processingTimeRemaining==0){
+                if (processing!=null){
+                    processing.setTurnAroundTime(-(processing.getArrive()-time));
+                    SPNProcessed.add(processing);
+                    processRuntime = -1;
+                }
+                if (readyQueue.size()>0){
+                    time += dispatchTime;
+                    *//*for (int i = 0; i < readyQueue.size(); i++) {//loops through the readyQueue to find the shortest process
+                        possibleNextProcess = tempQueue.poll();
+                        if (processRuntime == -1){
+                            shortestNextProcess = possibleNextProcess;
+                            processRuntime = possibleNextProcess.getExecSize();
+                        } else if (possibleNextProcess.getExecSize() < processRuntime){
+                            shortestNextProcess = possibleNextProcess;
+                            processRuntime = possibleNextProcess.getExecSize();
+                        }
+                    }
+                    processing = shortestNextProcess;
+                    readyQueue.remove(processing);
+                    processing = new SchedulerProcess(processing);
+                    processing.setWaitingTime(-(processing.getArrive()-time));
+                    processingTimeRemaining = processing.getExecSize();*//*
+                } else if (temp.isEmpty()){
+                    allItemsExecuted = true;
+                } else {
+                    processing = null;
+                }
+
+            }
+
+            time++;
+            processingTimeRemaining--;
+
+
+        }*/
+    }
+
     public void getOutput(){
         int counter = 0;
         System.out.println("FCFS:");
@@ -165,3 +215,5 @@ public class Algorithms {
         //Output the rest of the algorithms metrics
     }
 }
+
+
