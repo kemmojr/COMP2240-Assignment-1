@@ -1,6 +1,6 @@
-import java.util.Scanner;
+import java.util.*;
 
-public class SchedulerProcess {
+public class SchedulerProcess implements Comparator<SchedulerProcess>{
 
     private String ID = null;
     private int arrive;
@@ -78,5 +78,18 @@ public class SchedulerProcess {
         if (p1<p2)
             return true;
         return false;
+    }
+
+
+    @Override
+    public int compare(SchedulerProcess x, SchedulerProcess y) {
+
+        if (x.getPriority() < y.getPriority()) {
+            return -1;
+        }
+        if (x.getPriority() > y.getPriority()) {
+            return 1;
+        }
+        return 0;
     }
 }

@@ -138,7 +138,7 @@ public class Algorithms {
 
     public void PP(){
         ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
-        Comparator<SchedulerProcess> c = new SchedulerProcessComparator();
+        Comparator<SchedulerProcess> c = new SchedulerProcess();
         Queue<SchedulerProcess> readyQueue = new PriorityQueue<>(processes.size(), c);
         SchedulerProcess processing = null;//Current item that is being processed = processing
         int processingTimeRemaining =0, time = 0, processRuntime = -1;
