@@ -9,11 +9,18 @@ public class SchedulerProcess {
     private int turnAroundTime;
     private int waitingTime;
 
-    public SchedulerProcess(){
+    public SchedulerProcess(){//default null constructor
         ID = null;
         arrive = -1;
         execSize = -1;
         priority = -1;
+    }
+
+    public SchedulerProcess(SchedulerProcess s){//copy costructor
+        this.ID = s.ID;
+        this.arrive = s.arrive;
+        this.execSize = s.execSize;
+        this.priority = s.priority;
     }
 
     public void setID(String id) {

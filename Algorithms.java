@@ -54,7 +54,7 @@ public class Algorithms {
     }
 
     public void FCFS(){//Execute the first come first served algorithm
-        ArrayList<SchedulerProcess> temp = processes;
+        ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
         Queue<SchedulerProcess> readyQueue = new LinkedList<>();
         SchedulerProcess processing = null;//Current item that is being processed
         int numToRemove =0, processingTimeRemaining =0, time = 0;
@@ -68,7 +68,7 @@ public class Algorithms {
                 }
                 if (readyQueue.size()>0){//Add the turnaroundTime to the processing SchedulerProcess
                     time += dispatchTime;
-                    processing = readyQueue.poll();
+                    processing = new SchedulerProcess(readyQueue.poll());
                     processing.setWaitingTime(-(processing.getArrive()-time));
                     processingTimeRemaining = processing.getExecSize();
                 } else if (temp.isEmpty()){
@@ -88,21 +88,36 @@ public class Algorithms {
     }
 
     public void SPN(){//Execute the shortest process next algorithm
-        ArrayList<SchedulerProcess> temp = processes;
-        Queue<SchedulerProcess> readyQueue = new LinkedList<>();
-        SchedulerProcess processing = null;//Current item that is being processed
-        int numToRemove =0, processingTimeRemaining =0, time = 0;
+        ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
+        Queue<SchedulerProcess> readyQueue = new LinkedList<>(), tempQueue;
+        SchedulerProcess processing = null, possibleNextProcess, shortestNextProcess = null;//Current item that is being processed = processing
+        //temporary process to compare runtime = possibleNextProcess
+        //shortest process that has been found in the readyQueue = shortestNextProcess
+        int processingTimeRemaining =0, time = 0, processRuntime = -1;
         boolean allItemsExecuted = false;
         while (!allItemsExecuted){
             updateReadyQueue(temp,readyQueue,time);
             if (processingTimeRemaining==0){
                 if (processing!=null){
                     processing.setTurnAroundTime(-(processing.getArrive()-time));
-                    FCFSProcessed.add(processing);
+                    SPNProcessed.add(processing);
+                    processRuntime = -1;
                 }
-                if (readyQueue.size()>0){//Add the turnaroundTime to the processing SchedulerProcess
+                if (readyQueue.size()>0){
                     time += dispatchTime;
-                    processing = readyQueue.poll();
+                    tempQueue = readyQueue;
+                    for (int i = 0; i < readyQueue.size(); i++) {//loops through the readyQueue to find the shortest process
+                        possibleNextProcess = tempQueue.poll();
+                        if (processRuntime == -1){
+                            shortestNextProcess = possibleNextProcess;
+                            processRuntime = possibleNextProcess.getExecSize();
+                        } else if (possibleNextProcess.getExecSize() < processRuntime){
+                            shortestNextProcess = possibleNextProcess;
+                            processRuntime = possibleNextProcess.getExecSize();
+                        }
+                    }
+                    processing = new SchedulerProcess(shortestNextProcess);
+                    readyQueue.remove(processing);
                     processing.setWaitingTime(-(processing.getArrive()-time));
                     processingTimeRemaining = processing.getExecSize();
                 } else if (temp.isEmpty()){

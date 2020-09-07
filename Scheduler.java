@@ -17,6 +17,7 @@ public class Scheduler {
 
         Algorithms a = new Algorithms(reader);
         a.FCFS();
+        a.SPN();
 
         /*while (reader.hasNext())
             System.out.println(reader.next());*/
