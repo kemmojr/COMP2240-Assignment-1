@@ -105,7 +105,7 @@ public class Algorithms {
                 }
                 if (readyQueue.size()>0){
                     time += dispatchTime;
-                    tempQueue = readyQueue;
+                    tempQueue = new LinkedList<>(readyQueue);
                     for (int i = 0; i < readyQueue.size(); i++) {//loops through the readyQueue to find the shortest process
                         possibleNextProcess = tempQueue.poll();
                         if (processRuntime == -1){
@@ -116,8 +116,9 @@ public class Algorithms {
                             processRuntime = possibleNextProcess.getExecSize();
                         }
                     }
-                    processing = new SchedulerProcess(shortestNextProcess);
+                    processing = shortestNextProcess;
                     readyQueue.remove(processing);
+                    processing = new SchedulerProcess(processing);
                     processing.setWaitingTime(-(processing.getArrive()-time));
                     processingTimeRemaining = processing.getExecSize();
                 } else if (temp.isEmpty()){
