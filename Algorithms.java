@@ -135,4 +135,15 @@ public class Algorithms {
 
         }
     }
+
+    public void getOutput(){
+        System.out.println("FCFS:");
+        for (int i = 0; i < FCFSProcessed.size(); i++) {
+            System.out.println("T" + FCFSProcessed.get(i).getWaitingTime() + ": " + FCFSProcessed.get(i).getID() + "(" + FCFSProcessed.get(i).getPriority() + ")");
+        }
+        System.out.println("Process\tTurnaround Time\tWaiting Time");
+        for (int i = 0; i < FCFSProcessed.size(); i++) {
+            System.out.println(FCFSProcessed.get(i).getID() + "\t" + FCFSProcessed.get(i).getTurnAroundTime() + "\t" + FCFSProcessed.get(i).getWaitingTime());
+        }
+    }
 }

@@ -19,7 +19,11 @@ public class Scheduler {
         a.FCFS();
         a.SPN();
 
-        /*while (reader.hasNext())
-            System.out.println(reader.next());*/
+        //Output
+        a.getOutput();
+
+        System.out.println("FCFS:");
+
+        //System.out.println();
     }
 }
