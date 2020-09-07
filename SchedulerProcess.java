@@ -2,12 +2,12 @@ import java.util.Scanner;
 
 public class SchedulerProcess {
 
-    String ID = null;
-    int arrive;
-    int execSize;
-    int priority;
-    int turnAroundTime;
-    int waitingTime;
+    private String ID = null;
+    private int arrive;
+    private int execSize;
+    private int priority;
+    private int turnAroundTime;
+    private int waitingTime;
 
     public SchedulerProcess(){
         ID = null;

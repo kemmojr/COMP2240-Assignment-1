@@ -2,9 +2,8 @@ import java.util.*;
 
 public class Algorithms {
 
-    int numOfProcesses;
-    ArrayList<SchedulerProcess> processes, FCFSProcessed, SPNProcessed, PPProcessed, PRRProcessed;
-    int dispatchTime;
+    private int numOfProcesses, dispatchTime;
+    private ArrayList<SchedulerProcess> processes, FCFSProcessed, SPNProcessed, PPProcessed, PRRProcessed;
 
     public Algorithms(Scanner inputReader){
         //Go through the input file and convert all the process data into process classes
@@ -41,24 +40,27 @@ public class Algorithms {
         }
     }
 
-    public void FCFS(){
-        //Execute the first come first served algorithm
+    private void updateReadyQueue(ArrayList<SchedulerProcess> temp, Queue<SchedulerProcess> readyQueue,int time){
+        int numToRemove = 0;
+        for (int i = 0; i < temp.size(); i++) {//Iterate through all the elements of temp and and add all of the elements that have a start time that matches current time to the ready queue
+            if (temp.get(i).getArrive()<=time){
+                readyQueue.add(temp.get(i));
+                numToRemove++;
+            }
+        }
+        for (int i = numToRemove-1; i > -1; i--) {//Remove all of the SchedulerProcesses from the temp list that were added to the readyQueue
+            temp.remove(i);
+        }
+    }
+
+    public void FCFS(){//Execute the first come first served algorithm
         ArrayList<SchedulerProcess> temp = processes;
         Queue<SchedulerProcess> readyQueue = new LinkedList<>();
         SchedulerProcess processing = null;//Current item that is being processed
         int numToRemove =0, processingTimeRemaining =0, time = 0;
         boolean allItemsExecuted = false;
         while (!allItemsExecuted){
-            for (int i = 0; i < temp.size(); i++) {//Iterate through all the elements of temp and and add all of the elements that have a start time that matches current time to the ready queue
-                if (temp.get(i).getArrive()<=time){
-                    readyQueue.add(temp.get(i));
-                    numToRemove++;
-                }
-            }
-            for (int i = numToRemove-1; i > -1; i--) {//Remove all of the SchedulerProcesses from the temp list that were added to the readyQueue
-                temp.remove(i);
-            }
-            numToRemove = 0;
+            updateReadyQueue(temp,readyQueue,time);
             if (processingTimeRemaining==0){
                 if (processing!=null){
                     processing.setTurnAroundTime(-(processing.getArrive()-time));
@@ -83,5 +85,38 @@ public class Algorithms {
 
         }
 
+    }
+
+    public void SPN(){//Execute the shortest process next algorithm
+        ArrayList<SchedulerProcess> temp = processes;
+        Queue<SchedulerProcess> readyQueue = new LinkedList<>();
+        SchedulerProcess processing = null;//Current item that is being processed
+        int numToRemove =0, processingTimeRemaining =0, time = 0;
+        boolean allItemsExecuted = false;
+        while (!allItemsExecuted){
+            updateReadyQueue(temp,readyQueue,time);
+            if (processingTimeRemaining==0){
+                if (processing!=null){
+                    processing.setTurnAroundTime(-(processing.getArrive()-time));
+                    FCFSProcessed.add(processing);
+                }
+                if (readyQueue.size()>0){//Add the turnaroundTime to the processing SchedulerProcess
+                    time += dispatchTime;
+                    processing = readyQueue.poll();
+                    processing.setWaitingTime(-(processing.getArrive()-time));
+                    processingTimeRemaining = processing.getExecSize();
+                } else if (temp.isEmpty()){
+                    allItemsExecuted = true;
+                } else {
+                    processing = null;
+                }
+
+            }
+
+            time++;
+            processingTimeRemaining--;
+
+
+        }
     }
 }
