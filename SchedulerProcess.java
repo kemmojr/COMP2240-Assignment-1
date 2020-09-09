@@ -71,13 +71,23 @@ public class SchedulerProcess implements Comparator<SchedulerProcess>{
         return waitingTime;
     }
 
-    public boolean isBefore(SchedulerProcess p){
+    public boolean isIDBefore(SchedulerProcess p){
         String[] p1S = this.ID.split(""), p2S = p.ID.split("");
         int p1 = Integer.parseInt(p1S[1]);
         int p2 = Integer.parseInt(p2S[1]);
         if (p1<p2)
             return true;
         return false;
+    }
+
+    public int isHigherPriority(SchedulerProcess p2){
+        SchedulerProcess p1 = this;
+        if (p1.getPriority()>p2.getPriority()){
+            return 1;
+        } else if (p1.getPriority()==p2.getPriority()){
+            return 0;
+        }
+        return -1;
     }
 
 

@@ -53,6 +53,25 @@ public class Algorithms {
         }
     }
 
+    private void updateReadyQueueSorted(ArrayList<SchedulerProcess> temp, Queue<SchedulerProcess> readyQueue,int time){
+        Queue<SchedulerProcess> copy = new LinkedList<>(readyQueue);
+        SchedulerProcess current = copy.peek(), adding = null;
+        int currentIndex = 0;
+        for (int i = 0; i < temp.size(); i++) {//Iterate through all the elements of temp and and add all of the elements that have a start time that matches current time to the ready queue
+            if (temp.get(i).getArrive()<=time){
+                adding = temp.get(i);
+                for (int j = 0; j < copy.size(); j++) {
+                    if (current.isHigherPriority(adding)<=0){
+                        //Add adding at the currentIndex
+                        //make the queue an arrayList as we aren't using it as a queue
+                    }
+                }
+                readyQueue.add(temp.get(i));
+
+            }
+        }
+    }
+
     public void FCFS(){//Execute the first come first served algorithm
         ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
         Queue<SchedulerProcess> readyQueue = new LinkedList<>();
