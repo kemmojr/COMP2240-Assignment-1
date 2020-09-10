@@ -53,21 +53,39 @@ public class Algorithms {
         }
     }
 
-    private void updateReadyQueueSorted(ArrayList<SchedulerProcess> temp, Queue<SchedulerProcess> readyQueue,int time){
-        Queue<SchedulerProcess> copy = new LinkedList<>(readyQueue);
-        SchedulerProcess current = copy.peek(), adding = null;
+    private void updateReadyQueueSorted(ArrayList<SchedulerProcess> temp, ArrayList<SchedulerProcess> readyQueue,int time){
+        ArrayList<SchedulerProcess> copy = new ArrayList<>();
+        SchedulerProcess current, adding = null;
         int currentIndex = 0;
         for (int i = 0; i < temp.size(); i++) {//Iterate through all the elements of temp and and add all of the elements that have a start time that matches current time to the ready queue
             if (temp.get(i).getArrive()<=time){
-                adding = temp.get(i);
-                for (int j = 0; j < copy.size(); j++) {
-                    if (current.isHigherPriority(adding)<=0){
-                        //Add adding at the currentIndex
-                        //make the queue an arrayList as we aren't using it as a queue
-                    }
-                }
                 readyQueue.add(temp.get(i));
-
+            }
+        }
+        for (int i = 0; i < readyQueue.size(); i++) {
+            adding = readyQueue.get(i);
+            if (copy.size()==0){
+                copy.add(adding);
+                continue;
+            }
+            for (int j = 0; j < copy.size(); j++) {
+                if (j==copy.size()-1 && copy.size()==1){//if there is only one element in copy
+                    if (copy.get(j).comparePriority(adding)<0){//if the element is less than adding then append adding
+                        copy.add(adding);
+                    } else {//otherwise add adding to the start of the ArrayList
+                        copy.add(j,adding);
+                    }
+                    break;
+                } else if (copy.get(j).comparePriority(adding)==0){//If both elements match add adding at the current index
+                    copy.add(j,adding);
+                    break;
+                } else if (copy.get(j).comparePriority(adding)>0){//if adding is less than current element then add before current element
+                    copy.add(j-1,adding);
+                    break;
+                } else if (copy.get(j).comparePriority(adding)<0 && j ==copy.size()-1){//Otherwise if adding is greater than current element and we have reached the end of the ArrayList append adding
+                    copy.add(adding);
+                    break;
+                }
             }
         }
     }
@@ -157,13 +175,13 @@ public class Algorithms {
 
     public void PP(){
         ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
-        Comparator<SchedulerProcess> c = new SchedulerProcess();
-        Queue<SchedulerProcess> readyQueue = new PriorityQueue<>(processes.size(), c);
+        //Comparator<SchedulerProcess> c = new SchedulerProcess();
+        ArrayList<SchedulerProcess> readyQueue = new ArrayList<>();
         SchedulerProcess processing = null;//Current item that is being processed = processing
         int processingTimeRemaining =0, time = 0, processRuntime = -1;
         boolean allItemsExecuted = false;
         for (int i = 0; i < 1; i++) {
-            updateReadyQueue(temp,readyQueue,time);
+            updateReadyQueueSorted(temp,readyQueue,time);
         }
         /*while (!allItemsExecuted){
             updateReadyQueue(temp,readyQueue,time);

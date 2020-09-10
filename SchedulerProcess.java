@@ -80,7 +80,7 @@ public class SchedulerProcess implements Comparator<SchedulerProcess>{
         return false;
     }
 
-    public int isHigherPriority(SchedulerProcess p2){
+    public int comparePriority(SchedulerProcess p2){
         SchedulerProcess p1 = this;
         if (p1.getPriority()>p2.getPriority()){
             return 1;
