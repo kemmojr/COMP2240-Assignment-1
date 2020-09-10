@@ -121,26 +121,23 @@ public class Algorithms {
                     processing.setTurnAroundTime(-(processing.getArrive()-time));
                     FCFSProcessed.add(processing);
                 }
+
                 if (readyQueue.size()>0){//Add the turnaroundTime to the processing SchedulerProcess
                     time += dispatchTime;
                     processing = new SchedulerProcess(readyQueue.get(0));
                     readyQueue.remove(0);
                     processing.setWaitingTime(-(processing.getArrive()-time));
                     processingTimeRemaining = processing.getExecSize();
+                    
                 } else if (temp.isEmpty()){
                     allItemsExecuted = true;
                 } else {
                     processing = null;
                 }
-
             }
-
             time++;
             processingTimeRemaining--;
-
-
         }
-
     }
 
     public void SPN(){//Execute the shortest process next algorithm
@@ -159,6 +156,7 @@ public class Algorithms {
                     SPNProcessed.add(processing);
                     processRuntime = -1;
                 }
+
                 if (readyQueue.size()>0){
                     time += dispatchTime;
                     tempQueue = new ArrayList<>(readyQueue);
@@ -178,18 +176,15 @@ public class Algorithms {
                     processing = new SchedulerProcess(processing);
                     processing.setWaitingTime(-(processing.getArrive()-time));
                     processingTimeRemaining = processing.getExecSize();
+
                 } else if (temp.isEmpty()){
                     allItemsExecuted = true;
                 } else {
                     processing = null;
                 }
-
             }
-
             time++;
             processingTimeRemaining--;
-
-
         }
     }
 
@@ -220,10 +215,7 @@ public class Algorithms {
                     }
                     processingTimeRemaining = processing.getExecSize();
                 }
-
-
             }
-
 
             if (processingTimeRemaining == 0) {
                 if (processing != null) {
@@ -246,11 +238,8 @@ public class Algorithms {
                 }
             }
             time++;
-            if (processing != null) {
+            if (processing != null)
                 processingTimeRemaining--;
-            }
-
-
         }
     }
 
