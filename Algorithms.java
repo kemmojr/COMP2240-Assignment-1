@@ -15,22 +15,22 @@ public class Algorithms {
         String current = "";
         numOfProcesses = 0;
         processes = new ArrayList<>();
-        while (!current.equalsIgnoreCase("EOF")){
+        while (!current.equalsIgnoreCase("EOF")){//Scan the whole file
             current = inputReader.next();
-            if (current.equalsIgnoreCase("DISP:")){
+            if (current.equalsIgnoreCase("DISP:")){//get the dispatch time
                 current = inputReader.next();
                 dispatchTime = Integer.parseInt(current);
             }
 
-            if (current.equalsIgnoreCase("ID:")){
+            if (current.equalsIgnoreCase("ID:")){//get the ID
                 SchedulerProcess p = new SchedulerProcess();
                 p.setID(inputReader.next());
-                while (!current.equalsIgnoreCase("END")){
-                    if (current.equalsIgnoreCase("Arrive:")){
+                while (!current.equalsIgnoreCase("END")){//continue to read until we reach the end of the process
+                    if (current.equalsIgnoreCase("Arrive:")){//set arrive
                         p.setArrive(inputReader.nextInt());
-                    } else if (current.equalsIgnoreCase("ExecSize:")){
+                    } else if (current.equalsIgnoreCase("ExecSize:")){//set execution size
                         p.setExecSize(inputReader.nextInt());
-                    } else if (current.equalsIgnoreCase("Priority:")){
+                    } else if (current.equalsIgnoreCase("Priority:")){//set priority
                         p.setPriority(inputReader.nextInt());
                     }
                     current = inputReader.next();
@@ -53,7 +53,7 @@ public class Algorithms {
             temp.remove(i);
     }
 
-    public boolean insertSorted(int j, ArrayList<SchedulerProcess> list, SchedulerProcess inserting){
+    public boolean insertSorted(int j, ArrayList<SchedulerProcess> list, SchedulerProcess inserting){//insert a SchedulerProcess in it's correct position in an ArrayList
         if (j==list.size()-1 && list.size()==1){//if there is only one element in copy
             if (list.get(j).comparePriority(inserting)<0){//if the element is less than inserting then append inserting
                 list.add(inserting);
@@ -74,13 +74,13 @@ public class Algorithms {
         return false;
     }
 
-    private void updateReadyQueueSorted(ArrayList<SchedulerProcess> temp, ArrayList<SchedulerProcess> readyQueue,int time){
+    private void updateReadyQueueSorted(ArrayList<SchedulerProcess> temp, ArrayList<SchedulerProcess> readyQueue,int time){//update the ready queue with elements that are sorted by priority
         ArrayList<SchedulerProcess> copy = new ArrayList<>();
         SchedulerProcess current, adding = null;
         int numToRemove = 0;
         updateReadyQueue(temp,readyQueue,time);
 
-        for (int i = 0; i < readyQueue.size(); i++) {
+        for (int i = 0; i < readyQueue.size(); i++) {//iterate through each element of the readyQueue and add it to it's correct position in a sorted ready queue
             adding = readyQueue.get(i);
             if (copy.size()==0){
                 copy.add(adding);
@@ -97,41 +97,37 @@ public class Algorithms {
         sortedReadyQueue = copy;
     }
 
-    public void addProcessBackPP(SchedulerProcess processing){
+    public void addProcessBackPP(SchedulerProcess processing){//Adds a process that was executing back into the readyQueue
         int queueSize = sortedReadyQueue.size();
         for (int j = 0; j < queueSize; j++) {
             insertSorted(j, sortedReadyQueue,processing);
         }
     }
 
-    public int getHighestPriority(ArrayList<SchedulerProcess> sorted){
-        return sorted.get(0).getPriority();
-    }
-
     public void FCFS(){//Execute the first come first served algorithm
-        ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
-        ArrayList<SchedulerProcess> readyQueue = new ArrayList<>();
+        ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);//A temporary list of all of the processes
+        ArrayList<SchedulerProcess> readyQueue = new ArrayList<>();//A readyQueue as an arrayList (this helps for comparisons with insertionSort)
         SchedulerProcess processing = null;//Current item that is being processed
         int numToRemove =0, processingTimeRemaining =0, time = 0;
         boolean allItemsExecuted = false;
         while (!allItemsExecuted){
-            updateReadyQueue(temp,readyQueue,time);
-            if (processingTimeRemaining==0){
-                if (processing!=null){
+            updateReadyQueue(temp,readyQueue,time);//update the readyQueue with all of the processes that start at the current time
+            if (processingTimeRemaining==0){//when the last process has reached the end of its runtime
+                if (processing!=null){//If the last process is finishing it's processing time i.e. something was just processing and the scheduler isn't starving
                     processing.setTurnAroundTime(-(processing.getArrive()-time));
-                    FCFSProcessed.add(processing);
+                    FCFSProcessed.add(processing);//Add finished process to the finished process stats
                 }
 
-                if (readyQueue.size()>0){//Add the turnaroundTime to the processing SchedulerProcess
-                    time += dispatchTime;
-                    processing = new SchedulerProcess(readyQueue.get(0));
+                if (readyQueue.size()>0){
+                    time += dispatchTime;//factor in the time required to run the dispatcher
+                    processing = new SchedulerProcess(readyQueue.get(0));//get next item in the queue to begin processing
                     readyQueue.remove(0);
-                    processing.setWaitingTime(-(processing.getArrive()-time));
-                    processingTimeRemaining = processing.getExecSize();
-                    
-                } else if (temp.isEmpty()){
+                    processing.setWaitingTime(-(processing.getArrive()-time));//Set the waiting time to be recorded
+                    processingTimeRemaining = processing.getExecSize();//set how long the process has remaining
+
+                } else if (temp.isEmpty()){//if there are no more processes then finish
                     allItemsExecuted = true;
-                } else {
+                } else {//if starving then set processing to null
                     processing = null;
                 }
             }
@@ -141,24 +137,24 @@ public class Algorithms {
     }
 
     public void SPN(){//Execute the shortest process next algorithm
-        ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
-        ArrayList<SchedulerProcess> readyQueue = new ArrayList<>(), tempQueue;
+        ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);//A temporary list of all of the processes
+        ArrayList<SchedulerProcess> readyQueue = new ArrayList<>(), tempQueue;//A readyQueue as an arrayList (this helps for comparisons with insertionSort)
         SchedulerProcess processing = null, possibleNextProcess, shortestNextProcess = null;//Current item that is being processed = processing
         //temporary process to compare runtime = possibleNextProcess
         //shortest process that has been found in the readyQueue = shortestNextProcess
         int processingTimeRemaining =0, time = 0, processRuntime = -1;
         boolean allItemsExecuted = false;
         while (!allItemsExecuted){
-            updateReadyQueue(temp,readyQueue,time);
-            if (processingTimeRemaining==0){
-                if (processing!=null){
-                    processing.setTurnAroundTime(-(processing.getArrive()-time));
-                    SPNProcessed.add(processing);
+            updateReadyQueue(temp,readyQueue,time);//update the readyQueue with all of the processes that start at the current time
+            if (processingTimeRemaining==0){//when the last process has reached the end of its runtime
+                if (processing!=null){//If the last process is finishing it's processing time i.e. something was just processing and the scheduler isn't starving
+                    processing.setTurnAroundTime(-(processing.getArrive()-time));//turnAroundTime tracking
+                    SPNProcessed.add(processing);//Storing the metrics
                     processRuntime = -1;
                 }
 
                 if (readyQueue.size()>0){
-                    time += dispatchTime;
+                    time += dispatchTime;//factor in the time required to run the dispatcher
                     tempQueue = new ArrayList<>(readyQueue);
                     for (int i = 0; i < readyQueue.size(); i++) {//loops through the readyQueue to find the shortest process
                         possibleNextProcess = tempQueue.get(0);
@@ -171,13 +167,13 @@ public class Algorithms {
                             processRuntime = possibleNextProcess.getExecSize();
                         }
                     }
-                    processing = shortestNextProcess;
+                    processing = shortestNextProcess;//start the process with the shortest runtime
                     readyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
-                    processing.setWaitingTime(-(processing.getArrive()-time));
-                    processingTimeRemaining = processing.getExecSize();
+                    processing.setWaitingTime(-(processing.getArrive()-time));//metric tracking for waiting time
+                    processingTimeRemaining = processing.getExecSize();//set how long the process has remaining
 
-                } else if (temp.isEmpty()){
+                } else if (temp.isEmpty()){//exit if there are no more processes to be run
                     allItemsExecuted = true;
                 } else {
                     processing = null;
@@ -188,24 +184,23 @@ public class Algorithms {
         }
     }
 
-    public void PP() {
+    public void PP() {//Execute the pre-emptive priority algorithm
         ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
         sortedReadyQueue = new ArrayList<>();
         ArrayList<SchedulerProcess> readyQueue = new ArrayList<>();
         SchedulerProcess processing = null;//Current item that is being processed = processing
-        int processingTimeRemaining = 0, time = 0, processRuntime = -1, highestPriority = 6, readyQueueSize;
+        int processingTimeRemaining = 0, time = 0, highestPriority = 6;//tracking for what the highest priority process is in the queue
         boolean allItemsExecuted = false;
 
         while (!allItemsExecuted) {
             if (temp.size()>0)
                 updateReadyQueueSorted(temp, readyQueue, time);
             if (sortedReadyQueue.size()>0)
-                highestPriority = getHighestPriority(sortedReadyQueue);
+                highestPriority = sortedReadyQueue.get(0).getPriority();
 
             if (processing!=null && highestPriority<processing.getPriority()){//If the highest priority in the readyQueue is higher than processing then swap processing
                 if (processingTimeRemaining!=0){
-                    processing.setExecSize(processing.getExecSize()-(-(processing.getArrive() - time)));
-                    //Add the process back to the readyQueue in the sorted position
+                    processing.setExecSize(processing.getExecSize()-(-(processing.getArrive() - time)));//decrease execution time by the amount executed
                     addProcessBackPP(processing);
                     processing = sortedReadyQueue.get(0);
                     sortedReadyQueue.remove(processing);
@@ -218,19 +213,19 @@ public class Algorithms {
             }
 
             if (processingTimeRemaining == 0) {
-                if (processing != null) {
+                if (processing != null) {//If the last process is finishing it's processing time i.e. something was just processing and the scheduler isn't starving
                     processing.setTurnAroundTime(-(processing.getArrive() - time));
-                    PPProcessed.add(processing);
+                    PPProcessed.add(processing);//metric tracking
                 }
                 if (sortedReadyQueue.size() > 0) {
-                    time += dispatchTime;
-                    processing = sortedReadyQueue.get(0);
+                    time += dispatchTime;//factor in the time required to run the dispatcher
+                    processing = sortedReadyQueue.get(0);//get the next process with the highest priority from the readyQueue
                     sortedReadyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
                     if (processing.getWaitingTime() <= 0) {
                         processing.setWaitingTime(-(processing.getArrive() - time));
                     }
-                    processingTimeRemaining = processing.getExecSize();
+                    processingTimeRemaining = processing.getExecSize();//set how long this process has to go
                 } else if (temp.isEmpty()) {
                     allItemsExecuted = true;
                 } else {
@@ -245,7 +240,7 @@ public class Algorithms {
 
 
 
-    public void getOutput(){
+    public void getOutput(){//display the output formatted as it was in the output files given
         String algName = "";
         ArrayList<SchedulerProcess> output = null;
         int processedSize = 0, counter = 0;;
