@@ -18,7 +18,7 @@ public class Scheduler {
         Algorithms a = new Algorithms(reader);
         a.FCFS();
         a.SPN();
-        a.PP();
+        //a.PP();
 
         //Output
         a.getOutput();

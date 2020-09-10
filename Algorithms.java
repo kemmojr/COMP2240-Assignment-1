@@ -92,6 +92,10 @@ public class Algorithms {
         sortedReadyQueue = copy;
     }
 
+    public int getHighestPriority(ArrayList<SchedulerProcess> sorted){
+        return sorted.get(0).getPriority();
+    }
+
     public void FCFS(){//Execute the first come first served algorithm
         ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
         Queue<SchedulerProcess> readyQueue = new LinkedList<>();
@@ -175,55 +179,42 @@ public class Algorithms {
         }
     }
 
-    public void PP(){
+    public void PP() {
         ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
         sortedReadyQueue = new ArrayList<>();
-        //Comparator<SchedulerProcess> c = new SchedulerProcess();
         ArrayList<SchedulerProcess> readyQueue = new ArrayList<>();
         SchedulerProcess processing = null;//Current item that is being processed = processing
-        int processingTimeRemaining =0, time = 0, processRuntime = -1;
+        int processingTimeRemaining = 0, time = 0, processRuntime = -1, highestPriority;
         boolean allItemsExecuted = false;
-        for (int i = 0; i < 1; i++) {
-            updateReadyQueueSorted(temp,readyQueue,time);
-        }
-        /*while (!allItemsExecuted){
-            updateReadyQueue(temp,readyQueue,time);
-            if (processingTimeRemaining==0){
-                if (processing!=null){
-                    processing.setTurnAroundTime(-(processing.getArrive()-time));
+
+        while (!allItemsExecuted) {
+            updateReadyQueueSorted(temp, readyQueue, time);
+            highestPriority = getHighestPriority(sortedReadyQueue);
+            if (processingTimeRemaining == 0) {
+                if (processing != null) {
+                    processing.setTurnAroundTime(-(processing.getArrive() - time));
                     SPNProcessed.add(processing);
                     processRuntime = -1;
                 }
-                if (readyQueue.size()>0){
+                if (readyQueue.size() > 0) {
                     time += dispatchTime;
-                    *//*for (int i = 0; i < readyQueue.size(); i++) {//loops through the readyQueue to find the shortest process
-                        possibleNextProcess = tempQueue.poll();
-                        if (processRuntime == -1){
-                            shortestNextProcess = possibleNextProcess;
-                            processRuntime = possibleNextProcess.getExecSize();
-                        } else if (possibleNextProcess.getExecSize() < processRuntime){
-                            shortestNextProcess = possibleNextProcess;
-                            processRuntime = possibleNextProcess.getExecSize();
-                        }
-                    }
-                    processing = shortestNextProcess;
+
+                    //processing = shortestNextProcess;
                     readyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
-                    processing.setWaitingTime(-(processing.getArrive()-time));
-                    processingTimeRemaining = processing.getExecSize();*//*
-                } else if (temp.isEmpty()){
+                    processing.setWaitingTime(-(processing.getArrive() - time));
+                    processingTimeRemaining = processing.getExecSize();
+                } else if (temp.isEmpty()) {
                     allItemsExecuted = true;
                 } else {
                     processing = null;
                 }
-
+                time++;
+                processingTimeRemaining--;
             }
 
-            time++;
-            processingTimeRemaining--;
 
-
-        }*/
+        }
     }
 
     public void getOutput(){
