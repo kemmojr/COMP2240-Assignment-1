@@ -4,6 +4,7 @@ public class Algorithms {
 
     private int numOfProcesses, dispatchTime;
     private ArrayList<SchedulerProcess> processes, FCFSProcessed, SPNProcessed, PPProcessed, PRRProcessed;
+    private ArrayList<SchedulerProcess> sortedReadyQueue;
 
     public Algorithms(Scanner inputReader){
         //Go through the input file and convert all the process data into process classes
@@ -80,7 +81,7 @@ public class Algorithms {
                     copy.add(j,adding);
                     break;
                 } else if (copy.get(j).comparePriority(adding)>0){//if adding is less than current element then add before current element
-                    copy.add(j-1,adding);
+                    copy.add(j,adding);
                     break;
                 } else if (copy.get(j).comparePriority(adding)<0 && j ==copy.size()-1){//Otherwise if adding is greater than current element and we have reached the end of the ArrayList append adding
                     copy.add(adding);
@@ -88,6 +89,7 @@ public class Algorithms {
                 }
             }
         }
+        sortedReadyQueue = copy;
     }
 
     public void FCFS(){//Execute the first come first served algorithm
@@ -175,6 +177,7 @@ public class Algorithms {
 
     public void PP(){
         ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
+        sortedReadyQueue = new ArrayList<>();
         //Comparator<SchedulerProcess> c = new SchedulerProcess();
         ArrayList<SchedulerProcess> readyQueue = new ArrayList<>();
         SchedulerProcess processing = null;//Current item that is being processed = processing
