@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class SchedulerProcess implements Comparator<SchedulerProcess>{
+public class SchedulerProcess{
 
     private String ID = null;
     private int arrive;
@@ -18,7 +18,7 @@ public class SchedulerProcess implements Comparator<SchedulerProcess>{
         waitingTime = -1;
     }
 
-    public SchedulerProcess(SchedulerProcess s){//copy costructor
+    public SchedulerProcess(SchedulerProcess s){//copy constructor
         this.ID = s.ID;
         this.arrive = s.arrive;
         this.execSize = s.execSize;
@@ -90,18 +90,5 @@ public class SchedulerProcess implements Comparator<SchedulerProcess>{
             return 0;
         }
         return -1;
-    }
-
-
-    @Override
-    public int compare(SchedulerProcess x, SchedulerProcess y) {
-
-        if (x.getPriority() < y.getPriority()) {
-            return -1;
-        }
-        if (x.getPriority() > y.getPriority()) {
-            return 1;
-        }
-        return 0;
     }
 }

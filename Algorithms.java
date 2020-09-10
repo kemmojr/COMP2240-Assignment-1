@@ -64,12 +64,10 @@ public class Algorithms {
                 numToRemove++;
             }
         }
+        if (numToRemove==0)
+            return;
         for (int i = numToRemove-1; i > -1; i--) {//Remove all of the SchedulerProcesses from the temp list that were added to the readyQueue
             temp.remove(i);
-        }
-
-        if (numToRemove==0){
-            return;
         }
 
         for (int i = 0; i < readyQueue.size(); i++) {
@@ -271,48 +269,51 @@ public class Algorithms {
         }
     }
 
+
+
     public void getOutput(){
-        int counter = 0;
-        System.out.println("FCFS:");
-        for (int i = 0; i < FCFSProcessed.size(); i++) {
-            System.out.println("T" + FCFSProcessed.get(i).getWaitingTime() + ": " + FCFSProcessed.get(i).getID() + "(" + FCFSProcessed.get(i).getPriority() + ")");
-        }
-        System.out.println("Process\tTurnaround Time\tWaiting Time");
-        for (int i = 0; i < FCFSProcessed.size(); i++) {
-            System.out.println(FCFSProcessed.get(i).getID() + "\t\t" + FCFSProcessed.get(i).getTurnAroundTime() + "\t\t\t\t" + FCFSProcessed.get(i).getWaitingTime());
-        }
-
-        System.out.println("\nSPN:");
-        for (int i = 0; i < SPNProcessed.size(); i++) {
-            System.out.println("T" + SPNProcessed.get(i).getWaitingTime() + ": " + SPNProcessed.get(i).getID() + "(" + SPNProcessed.get(i).getPriority() + ")");
-        }
-        System.out.println("Process\tTurnaround Time\tWaiting Time");
-
-        while (counter<processes.size()){
-
-            for (int i = 0; i < SPNProcessed.size(); i++) {
-                if (processes.get(counter).getID().equalsIgnoreCase(SPNProcessed.get(i).getID())){
-                    System.out.println(SPNProcessed.get(i).getID() + "\t\t" + SPNProcessed.get(i).getTurnAroundTime() + "\t\t\t\t" + SPNProcessed.get(i).getWaitingTime());
-                }
+        String algName = "";
+        ArrayList<SchedulerProcess> output = null;
+        int processedSize = 0, counter = 0;;
+        for (int i = 0; i < 4; i++) {
+            switch (i){
+                case 0: algName = "FCFS";
+                output = FCFSProcessed;
+                processedSize = output.size();
+                counter = 0;
+                break;
+                case 1: algName = "SPN";
+                    output = SPNProcessed;
+                    processedSize = output.size();
+                    counter = 0;
+                    break;
+                case 2: algName = "PP";
+                    output = PPProcessed;
+                    processedSize = output.size();
+                    counter = 0;
+                    break;
+                case 3: algName = "PRR";
+                    output = PRRProcessed;
+                    processedSize = output.size();
+                    counter = 0;
+                    break;
             }
-            counter++;
-        }
-        //Output the rest of the algorithms metrics
-        counter = 0;
-        System.out.println("\nPP:");
-        for (int i = 0; i < PPProcessed.size(); i++) {
-            System.out.println("T" + PPProcessed.get(i).getWaitingTime() + ": " + PPProcessed.get(i).getID() + "(" + PPProcessed.get(i).getPriority() + ")");
-        }
-        System.out.println("Process\tTurnaround Time\tWaiting Time");
-
-        while (counter<processes.size()){
-
-            for (int i = 0; i < PPProcessed.size(); i++) {
-                if (processes.get(counter).getID().equalsIgnoreCase(PPProcessed.get(i).getID())){
-                    System.out.println(PPProcessed.get(i).getID() + "\t\t" + PPProcessed.get(i).getTurnAroundTime() + "\t\t\t\t" + PPProcessed.get(i).getWaitingTime());
-                }
+            System.out.println("\n"+algName);
+            for (int j = 0; j < processedSize; j++) {
+                System.out.println("T" + output.get(j).getWaitingTime() + ": " + output.get(j).getID() + "(" + output.get(j).getPriority() + ")");
             }
-            counter++;
+            System.out.println("Process\tTurnaround Time\tWaiting Time");
+
+            while (counter<processes.size()){
+
+                for (int j = 0; j < processedSize; j++) {
+                    if (processes.get(counter).getID().equalsIgnoreCase(output.get(j).getID())){
+                        System.out.println(output.get(j).getID() + "\t\t" + output.get(j).getTurnAroundTime() + "\t\t\t\t" + output.get(j).getWaitingTime());
+                    }
+                }
+                counter++;
+            }
+
         }
     }
 }
