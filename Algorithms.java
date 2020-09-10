@@ -57,12 +57,21 @@ public class Algorithms {
     private void updateReadyQueueSorted(ArrayList<SchedulerProcess> temp, ArrayList<SchedulerProcess> readyQueue,int time){
         ArrayList<SchedulerProcess> copy = new ArrayList<>();
         SchedulerProcess current, adding = null;
-        int currentIndex = 0;
+        int numToRemove = 0;
         for (int i = 0; i < temp.size(); i++) {//Iterate through all the elements of temp and and add all of the elements that have a start time that matches current time to the ready queue
             if (temp.get(i).getArrive()<=time){
                 readyQueue.add(temp.get(i));
+                numToRemove++;
             }
         }
+        for (int i = numToRemove-1; i > -1; i--) {//Remove all of the SchedulerProcesses from the temp list that were added to the readyQueue
+            temp.remove(i);
+        }
+
+        if (numToRemove==0){
+            return;
+        }
+
         for (int i = 0; i < readyQueue.size(); i++) {
             adding = readyQueue.get(i);
             if (copy.size()==0){
@@ -90,6 +99,28 @@ public class Algorithms {
             }
         }
         sortedReadyQueue = copy;
+    }
+
+    public void addProcessBackPP(SchedulerProcess processing){
+        for (int j = 0; j < sortedReadyQueue.size(); j++) {
+            if (j==sortedReadyQueue.size()-1 && sortedReadyQueue.size()==1){//if there is only one element in copy
+                if (sortedReadyQueue.get(j).comparePriority(processing)<0){//if the element is less than processing then append processing
+                    sortedReadyQueue.add(processing);
+                } else {//otherwise add processing to the start of the ArrayList
+                    sortedReadyQueue.add(j,processing);
+                }
+                return;
+            } else if (sortedReadyQueue.get(j).comparePriority(processing)==0){//If both elements match add processing at the current index
+                sortedReadyQueue.add(j,processing);
+                return;
+            } else if (sortedReadyQueue.get(j).comparePriority(processing)>0){//if processing is less than current element then add before current element
+                sortedReadyQueue.add(j,processing);
+                return;
+            } else if (sortedReadyQueue.get(j).comparePriority(processing)<0 && j ==sortedReadyQueue.size()-1){//Otherwise if processing is greater than current element and we have reached the end of the ArrayList append processing
+                sortedReadyQueue.add(processing);
+                return;
+            }
+        }
     }
 
     public int getHighestPriority(ArrayList<SchedulerProcess> sorted){
@@ -184,20 +215,26 @@ public class Algorithms {
         sortedReadyQueue = new ArrayList<>();
         ArrayList<SchedulerProcess> readyQueue = new ArrayList<>();
         SchedulerProcess processing = null;//Current item that is being processed = processing
-        int processingTimeRemaining = 0, time = 0, processRuntime = -1, highestPriority, readyQueueSize;
+        int processingTimeRemaining = 0, time = 0, processRuntime = -1, highestPriority = 6, readyQueueSize;
         boolean allItemsExecuted = false;
 
         while (!allItemsExecuted) {
-            updateReadyQueueSorted(temp, readyQueue, time);
-            highestPriority = getHighestPriority(sortedReadyQueue);
+            if (temp.size()>0)
+                updateReadyQueueSorted(temp, readyQueue, time);
+            if (sortedReadyQueue.size()>0)
+                highestPriority = getHighestPriority(sortedReadyQueue);
+
             if (processing!=null && highestPriority<processing.getPriority()){//If the highest priority in the readyQueue is higher than processing then swap processing
                 if (processingTimeRemaining!=0){
                     processing.setExecSize(processing.getExecSize()-(-(processing.getArrive() - time)));
                     //Add the process back to the readyQueue in the sorted position
+                    addProcessBackPP(processing);
                     processing = sortedReadyQueue.get(0);
                     sortedReadyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
-                    processing.setWaitingTime(-(processing.getArrive() - time));
+                    if (processing.getWaitingTime() <= 0) {
+                        processing.setWaitingTime(-(processing.getArrive() - time));
+                    }
                     processingTimeRemaining = processing.getExecSize();
                 }
 
@@ -208,24 +245,25 @@ public class Algorithms {
             if (processingTimeRemaining == 0) {
                 if (processing != null) {
                     processing.setTurnAroundTime(-(processing.getArrive() - time));
-                    SPNProcessed.add(processing);
-                    processRuntime = -1;
+                    PPProcessed.add(processing);
                 }
-                if (readyQueue.size() > 0) {
+                if (sortedReadyQueue.size() > 0) {
                     time += dispatchTime;
-
-                    //processing = shortestNextProcess;
                     processing = sortedReadyQueue.get(0);
                     sortedReadyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
-                    processing.setWaitingTime(-(processing.getArrive() - time));
+                    if (processing.getWaitingTime() <= 0) {
+                        processing.setWaitingTime(-(processing.getArrive() - time));
+                    }
                     processingTimeRemaining = processing.getExecSize();
                 } else if (temp.isEmpty()) {
                     allItemsExecuted = true;
                 } else {
                     processing = null;
                 }
-                time++;
+            }
+            time++;
+            if (processing != null) {
                 processingTimeRemaining--;
             }
 
@@ -241,10 +279,10 @@ public class Algorithms {
         }
         System.out.println("Process\tTurnaround Time\tWaiting Time");
         for (int i = 0; i < FCFSProcessed.size(); i++) {
-            System.out.println(FCFSProcessed.get(i).getID() + "\t\t" + FCFSProcessed.get(i).getTurnAroundTime() + "\t\t\t" + FCFSProcessed.get(i).getWaitingTime());
+            System.out.println(FCFSProcessed.get(i).getID() + "\t\t" + FCFSProcessed.get(i).getTurnAroundTime() + "\t\t\t\t" + FCFSProcessed.get(i).getWaitingTime());
         }
 
-        System.out.println("SPN:");
+        System.out.println("\nSPN:");
         for (int i = 0; i < SPNProcessed.size(); i++) {
             System.out.println("T" + SPNProcessed.get(i).getWaitingTime() + ": " + SPNProcessed.get(i).getID() + "(" + SPNProcessed.get(i).getPriority() + ")");
         }
@@ -254,12 +292,28 @@ public class Algorithms {
 
             for (int i = 0; i < SPNProcessed.size(); i++) {
                 if (processes.get(counter).getID().equalsIgnoreCase(SPNProcessed.get(i).getID())){
-                    System.out.println(SPNProcessed.get(i).getID() + "\t\t" + SPNProcessed.get(i).getTurnAroundTime() + "\t\t\t" + SPNProcessed.get(i).getWaitingTime());
+                    System.out.println(SPNProcessed.get(i).getID() + "\t\t" + SPNProcessed.get(i).getTurnAroundTime() + "\t\t\t\t" + SPNProcessed.get(i).getWaitingTime());
                 }
             }
             counter++;
         }
         //Output the rest of the algorithms metrics
+        counter = 0;
+        System.out.println("\nPP:");
+        for (int i = 0; i < PPProcessed.size(); i++) {
+            System.out.println("T" + PPProcessed.get(i).getWaitingTime() + ": " + PPProcessed.get(i).getID() + "(" + PPProcessed.get(i).getPriority() + ")");
+        }
+        System.out.println("Process\tTurnaround Time\tWaiting Time");
+
+        while (counter<processes.size()){
+
+            for (int i = 0; i < PPProcessed.size(); i++) {
+                if (processes.get(counter).getID().equalsIgnoreCase(PPProcessed.get(i).getID())){
+                    System.out.println(PPProcessed.get(i).getID() + "\t\t" + PPProcessed.get(i).getTurnAroundTime() + "\t\t\t\t" + PPProcessed.get(i).getWaitingTime());
+                }
+            }
+            counter++;
+        }
     }
 }
 

@@ -14,6 +14,8 @@ public class SchedulerProcess implements Comparator<SchedulerProcess>{
         arrive = -1;
         execSize = -1;
         priority = -1;
+        turnAroundTime = -1;
+        waitingTime = -1;
     }
 
     public SchedulerProcess(SchedulerProcess s){//copy costructor
