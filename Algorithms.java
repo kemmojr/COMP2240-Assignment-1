@@ -184,12 +184,27 @@ public class Algorithms {
         sortedReadyQueue = new ArrayList<>();
         ArrayList<SchedulerProcess> readyQueue = new ArrayList<>();
         SchedulerProcess processing = null;//Current item that is being processed = processing
-        int processingTimeRemaining = 0, time = 0, processRuntime = -1, highestPriority;
+        int processingTimeRemaining = 0, time = 0, processRuntime = -1, highestPriority, readyQueueSize;
         boolean allItemsExecuted = false;
 
         while (!allItemsExecuted) {
             updateReadyQueueSorted(temp, readyQueue, time);
             highestPriority = getHighestPriority(sortedReadyQueue);
+            if (processing!=null && highestPriority<processing.getPriority()){//If the highest priority in the readyQueue is higher than processing then swap processing
+                if (processingTimeRemaining!=0){
+                    processing.setExecSize(processing.getExecSize()-(-(processing.getArrive() - time)));
+                    //Add the process back to the readyQueue in the sorted position
+                    processing = sortedReadyQueue.get(0);
+                    sortedReadyQueue.remove(processing);
+                    processing = new SchedulerProcess(processing);
+                    processing.setWaitingTime(-(processing.getArrive() - time));
+                    processingTimeRemaining = processing.getExecSize();
+                }
+
+
+            }
+
+
             if (processingTimeRemaining == 0) {
                 if (processing != null) {
                     processing.setTurnAroundTime(-(processing.getArrive() - time));
@@ -200,7 +215,8 @@ public class Algorithms {
                     time += dispatchTime;
 
                     //processing = shortestNextProcess;
-                    readyQueue.remove(processing);
+                    processing = sortedReadyQueue.get(0);
+                    sortedReadyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
                     processing.setWaitingTime(-(processing.getArrive() - time));
                     processingTimeRemaining = processing.getExecSize();
