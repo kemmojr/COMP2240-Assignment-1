@@ -5,25 +5,28 @@ public class SchedulerProcess{
     private String ID = null;
     private int arrive;
     private int execSize;
+    private int initialExecSize;
     private int priority;
     private int turnAroundTime;
     private int waitingTime;
-    private boolean isHPC;
+    private Boolean isHPC;
 
     public SchedulerProcess(){//default null constructor
         ID = null;
         arrive = -1;
         execSize = -1;
+        initialExecSize =-1;
         priority = -1;
         turnAroundTime = -1;
         waitingTime = -1;
-        isHPC = false;
+        isHPC = null;
     }
 
     public SchedulerProcess(SchedulerProcess s){//copy constructor
         this.ID = s.ID;
         this.arrive = s.arrive;
         this.execSize = s.execSize;
+        this.initialExecSize = s.initialExecSize;
         this.priority = s.priority;
     }
 
@@ -37,6 +40,10 @@ public class SchedulerProcess{
 
     public void setExecSize(int e) {
         execSize = e;
+    }
+
+    public void setInitialExecSize(int e){
+        initialExecSize = e;
     }
 
     public void setPriority(int p) {
@@ -84,6 +91,10 @@ public class SchedulerProcess{
         return waitingTime;
     }
 
+    public int getInitialExecSize() {
+        return initialExecSize;
+    }
+
     public boolean isIDBefore(SchedulerProcess p){
         String[] p1S = this.ID.split(""), p2S = p.ID.split("");
         int p1 = Integer.parseInt(p1S[1]);
@@ -104,6 +115,6 @@ public class SchedulerProcess{
     }
 
     public boolean isHPC() {
-        return isHPC;
+        return priority<3;
     }
 }

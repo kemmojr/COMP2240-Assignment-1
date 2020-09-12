@@ -33,7 +33,9 @@ public class Algorithms {
                     if (current.equalsIgnoreCase("Arrive:")){//set arrive
                         p.setArrive(inputReader.nextInt());
                     } else if (current.equalsIgnoreCase("ExecSize:")){//set execution size
-                        p.setExecSize(inputReader.nextInt());
+                        int exec = inputReader.nextInt();
+                        p.setExecSize(exec);
+                        p.setInitialExecSize(exec);
                     } else if (current.equalsIgnoreCase("Priority:")){//set priority
                         p.setPriority(inputReader.nextInt());
                     }
@@ -106,6 +108,10 @@ public class Algorithms {
         for (int j = 0; j < queueSize; j++) {
             insertSorted(j, sortedReadyQueue,processing);
         }
+    }
+
+    public void addProcessBack(SchedulerProcess s, ArrayList<SchedulerProcess> readyQueue){
+        readyQueue.add(s);
     }
 
     public void FCFS(){//Execute the first come first served algorithm
@@ -255,6 +261,7 @@ public class Algorithms {
             if (processingTimeRemaining == 0) {
                 if (processing != null) {//If the last process is finishing it's processing time i.e. something was just processing and the scheduler isn't starving
                     processing.setTurnAroundTime(-(processing.getArrive() - time));
+                    processing.setWaitingTime(processing.getTurnAroundTime()-processing.getInitialExecSize());
                     PRRProcessed.add(processing);//metric tracking
                     PRRThreads.add(processing);
 
@@ -264,7 +271,6 @@ public class Algorithms {
                     processing = readyQueue.get(0);//get the next process with the highest priority from the readyQueue
                     readyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
-                    processing.setWaitingTime(-(processing.getArrive() - time));
                     processingTimeRemaining = processing.getExecSize();//set how long this process has to go
                     if (processing.isHPC()){
                         quantumTimeRemaining = quantumTimeHPC;
@@ -289,15 +295,14 @@ public class Algorithms {
                 } else if (readyQueue.size()>0){
                     time += dispatchTime;//factor in the time required to run the dispatcher
                     if (processing!=null){
-                        processing.setExecSize(processing.getExecSize()-(-(processing.getArrive() - time)));//decrease execution time by the amount executed
+                        processing.setExecSize(processing.getExecSize() + processingTimeRemaining-processing.getExecSize());//decrease execution time by the amount executed
                         PRRThreads.add(processing);
                     }
                     processing = new SchedulerProcess(processing);
-                    addProcessBackPP(processing);
+                    addProcessBack(processing,readyQueue);
                     processing = readyQueue.get(0);
                     readyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
-                    processing.setWaitingTime(-(processing.getArrive() - time));
                     processingTimeRemaining = processing.getExecSize();
                     if (processing.isHPC()){
                         quantumTimeRemaining = quantumTimeHPC;
