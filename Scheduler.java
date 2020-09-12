@@ -19,6 +19,7 @@ public class Scheduler {
         a.FCFS();
         a.SPN();
         a.PP();
+        a.PRR();
 
         //Output
         a.getOutput();

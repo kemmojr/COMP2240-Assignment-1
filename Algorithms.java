@@ -252,6 +252,32 @@ public class Algorithms {
             if (temp.size()>0)
                 updateReadyQueue(temp, readyQueue, time);
 
+            if (processingTimeRemaining == 0) {
+                if (processing != null) {//If the last process is finishing it's processing time i.e. something was just processing and the scheduler isn't starving
+                    processing.setTurnAroundTime(-(processing.getArrive() - time));
+                    PRRProcessed.add(processing);//metric tracking
+                    PRRThreads.add(processing);
+
+                }
+                if (readyQueue.size() > 0) {
+                    time += dispatchTime;//factor in the time required to run the dispatcher
+                    processing = readyQueue.get(0);//get the next process with the highest priority from the readyQueue
+                    readyQueue.remove(processing);
+                    processing = new SchedulerProcess(processing);
+                    processing.setWaitingTime(-(processing.getArrive() - time));
+                    processingTimeRemaining = processing.getExecSize();//set how long this process has to go
+                    if (processing.isHPC()){
+                        quantumTimeRemaining = quantumTimeHPC;
+                    } else {
+                        quantumTimeRemaining = quantumTimeLPC;
+                    }
+                } else if (temp.isEmpty()) {
+                    allItemsExecuted = true;
+                } else {
+                    processing = null;
+                }
+            }
+
             if (quantumTimeRemaining ==0){//Pre-emption with quantum time
                 if (readyQueue.size()<0 && processingTimeRemaining >0){
                     //continue running the process without running the dispatcher
@@ -262,8 +288,10 @@ public class Algorithms {
                     }
                 } else if (readyQueue.size()>0){
                     time += dispatchTime;//factor in the time required to run the dispatcher
-                    processing.setExecSize(processing.getExecSize()-(-(processing.getArrive() - time)));//decrease execution time by the amount executed
-                    PRRThreads.add(processing);
+                    if (processing!=null){
+                        processing.setExecSize(processing.getExecSize()-(-(processing.getArrive() - time)));//decrease execution time by the amount executed
+                        PRRThreads.add(processing);
+                    }
                     processing = new SchedulerProcess(processing);
                     addProcessBackPP(processing);
                     processing = readyQueue.get(0);
@@ -279,29 +307,6 @@ public class Algorithms {
                 }
 
 
-            }
-
-            if (processingTimeRemaining == 0) {
-                if (processing != null) {//If the last process is finishing it's processing time i.e. something was just processing and the scheduler isn't starving
-                    processing.setTurnAroundTime(-(processing.getArrive() - time));
-                    PRRProcessed.add(processing);//metric tracking
-                    PRRThreads.add(processing);
-
-                }
-                if (readyQueue.size() > 0) {
-                    time += dispatchTime;//factor in the time required to run the dispatcher
-                    processing = readyQueue.get(0);//get the next process with the highest priority from the readyQueue
-                    readyQueue.remove(processing);
-                    processing = new SchedulerProcess(processing);
-                    if (processing.getWaitingTime() <= 0) {
-                        processing.setWaitingTime(-(processing.getArrive() - time));
-                    }
-                    processingTimeRemaining = processing.getExecSize();//set how long this process has to go
-                } else if (temp.isEmpty()) {
-                    allItemsExecuted = true;
-                } else {
-                    processing = null;
-                }
             }
             time++;
             quantumTimeRemaining--;
