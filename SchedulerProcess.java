@@ -8,6 +8,7 @@ public class SchedulerProcess{
     private int priority;
     private int turnAroundTime;
     private int waitingTime;
+    private boolean isHPC;
 
     public SchedulerProcess(){//default null constructor
         ID = null;
@@ -16,6 +17,7 @@ public class SchedulerProcess{
         priority = -1;
         turnAroundTime = -1;
         waitingTime = -1;
+        isHPC = false;
     }
 
     public SchedulerProcess(SchedulerProcess s){//copy constructor
@@ -46,7 +48,16 @@ public class SchedulerProcess{
     }
 
     public void setWaitingTime(int w) {
-        waitingTime = w;
+        if (waitingTime==-1){
+            waitingTime = w;
+        } else {
+            waitingTime += w;
+        }
+
+    }
+
+    public void setHPC() {
+        isHPC = priority < 3;
     }
 
     public String getID() {
@@ -90,5 +101,9 @@ public class SchedulerProcess{
             return 0;
         }
         return -1;
+    }
+
+    public boolean isHPC() {
+        return isHPC;
     }
 }
