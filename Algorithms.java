@@ -82,7 +82,7 @@ public class Algorithms {
         return false;
     }
 
-    private void updateReadyQueueSorted(ArrayList<SchedulerProcess> temp, ArrayList<SchedulerProcess> readyQueue,int time){//update the ready queue with elements that are sorted by priority
+    private ArrayList<SchedulerProcess> updateReadyQueueSorted(ArrayList<SchedulerProcess> temp, ArrayList<SchedulerProcess> readyQueue,int time){//update the ready queue with elements that are sorted by priority
         ArrayList<SchedulerProcess> copy = new ArrayList<>();
         SchedulerProcess current, adding = null;
         int numToRemove = 0;
@@ -103,7 +103,8 @@ public class Algorithms {
                     j = copySize;
             }
         }
-        sortedReadyQueue = copy;
+        readyQueue = copy;
+        return readyQueue;
     }
 
     public void addProcessBackPP(SchedulerProcess processing, ArrayList<SchedulerProcess> readyQueue){//Adds a process that was executing back into the readyQueue
@@ -210,7 +211,7 @@ public class Algorithms {
 
         while (!allItemsExecuted) {
             if (temp.size()>0)
-                updateReadyQueueSorted(temp, readyQueue, time);
+                readyQueue = updateReadyQueueSorted(temp, readyQueue, time);
             if (readyQueue.size()>0)
                 highestPriority = readyQueue.get(0).getPriority();
 
