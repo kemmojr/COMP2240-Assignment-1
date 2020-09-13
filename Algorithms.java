@@ -1,19 +1,22 @@
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class Algorithms {
 
     private int dispatchTime, quantumTimeHPC, quantumTimeLPC;
-    private ArrayList<SchedulerProcess> processes, FCFSProcessed, SPNProcessed, PPProcessed, PPThreads, PRRProcessed, PRRThreads;
+    private ArrayList<SchedulerProcess> processes, FCFSProcessed, FCFSTimes, SPNProcessed, SPNTimes, PPProcessed, PPTimes, PRRProcessed, PRRTimes;
     private ArrayList<SchedulerProcess> sortedReadyQueue;
 
     public Algorithms(Scanner inputReader){
         //Go through the input file and convert all the process data into process classes
         FCFSProcessed = new ArrayList<>();
+        FCFSTimes = new ArrayList<>();
         SPNProcessed = new ArrayList<>();
+        SPNTimes = new ArrayList<>();
         PPProcessed = new ArrayList<>();
-        PPThreads = new ArrayList<>();
+        PPTimes = new ArrayList<>();
         PRRProcessed = new ArrayList<>();
-        PRRThreads = new ArrayList<>();
+        PRRTimes = new ArrayList<>();
         sortedReadyQueue = new ArrayList<>();
         String current = "";
         quantumTimeHPC = 4;//CHANGE THIS VALUE TO ALTER THE QUANTUM TIME OF PRR
@@ -103,10 +106,10 @@ public class Algorithms {
         sortedReadyQueue = copy;
     }
 
-    public void addProcessBackPP(SchedulerProcess processing){//Adds a process that was executing back into the readyQueue
-        int queueSize = sortedReadyQueue.size();
+    public void addProcessBackPP(SchedulerProcess processing, ArrayList<SchedulerProcess> readyQueue){//Adds a process that was executing back into the readyQueue
+        int queueSize = readyQueue.size();
         for (int j = 0; j < queueSize; j++) {
-            insertSorted(j, sortedReadyQueue,processing);
+            insertSorted(j, readyQueue,processing);
         }
     }
 
@@ -125,6 +128,7 @@ public class Algorithms {
             if (processingTimeRemaining==0){//when the last process has reached the end of its runtime
                 if (processing!=null){//If the last process is finishing it's processing time i.e. something was just processing and the scheduler isn't starving
                     processing.setTurnAroundTime(-(processing.getArrive()-time));
+                    processing.setWaitingTime(processing.getTurnAroundTime()-processing.getInitialExecSize());
                     FCFSProcessed.add(processing);//Add finished process to the finished process stats
                 }
 
@@ -132,7 +136,8 @@ public class Algorithms {
                     time += dispatchTime;//factor in the time required to run the dispatcher
                     processing = new SchedulerProcess(readyQueue.get(0));//get next item in the queue to begin processing
                     readyQueue.remove(0);
-                    processing.setWaitingTime(-(processing.getArrive()-time));//Set the waiting time to be recorded
+                    processing.setStartTime(time);
+                    FCFSTimes.add(processing);
                     processingTimeRemaining = processing.getExecSize();//set how long the process has remaining
 
                 } else if (temp.isEmpty()){//if there are no more processes then finish
@@ -159,6 +164,7 @@ public class Algorithms {
             if (processingTimeRemaining==0){//when the last process has reached the end of its runtime
                 if (processing!=null){//If the last process is finishing it's processing time i.e. something was just processing and the scheduler isn't starving
                     processing.setTurnAroundTime(-(processing.getArrive()-time));//turnAroundTime tracking
+                    processing.setWaitingTime(processing.getTurnAroundTime()-processing.getInitialExecSize());
                     SPNProcessed.add(processing);//Storing the metrics
                     processRuntime = -1;
                 }
@@ -180,7 +186,8 @@ public class Algorithms {
                     processing = shortestNextProcess;//start the process with the shortest runtime
                     readyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
-                    processing.setWaitingTime(-(processing.getArrive()-time));//metric tracking for waiting time
+                    processing.setStartTime(time);
+                    SPNTimes.add(processing);
                     processingTimeRemaining = processing.getExecSize();//set how long the process has remaining
 
                 } else if (temp.isEmpty()){//exit if there are no more processes to be run
@@ -204,19 +211,19 @@ public class Algorithms {
         while (!allItemsExecuted) {
             if (temp.size()>0)
                 updateReadyQueueSorted(temp, readyQueue, time);
-            if (sortedReadyQueue.size()>0)
-                highestPriority = sortedReadyQueue.get(0).getPriority();
+            if (readyQueue.size()>0)
+                highestPriority = readyQueue.get(0).getPriority();
 
             if (processing!=null && highestPriority<processing.getPriority()){//If the highest priority in the readyQueue is higher than processing then swap processing
                 if (processingTimeRemaining!=0){
-                    processing.setExecSize(processing.getExecSize()-(-(processing.getArrive() - time)));//decrease execution time by the amount executed
+                    processing.setExecSize(processingTimeRemaining);//decrease execution time by the amount executed
+                    addProcessBackPP(processing,readyQueue);
+                    time += dispatchTime;
+                    processing = readyQueue.get(0);
+                    readyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
-                    PPThreads.add(processing);
-                    addProcessBackPP(processing);
-                    processing = sortedReadyQueue.get(0);
-                    sortedReadyQueue.remove(processing);
-                    processing = new SchedulerProcess(processing);
-                    processing.setWaitingTime(-(processing.getArrive() - time));//Sets the waiting time. If it has already waited it += wait time
+                    processing.setStartTime(time);
+                    PPTimes.add(processing);
                     processingTimeRemaining = processing.getExecSize();
                 }
             }
@@ -224,17 +231,17 @@ public class Algorithms {
             if (processingTimeRemaining == 0) {
                 if (processing != null) {//If the last process is finishing it's processing time i.e. something was just processing and the scheduler isn't starving
                     processing.setTurnAroundTime(-(processing.getArrive() - time));
+                    processing.setWaitingTime(processing.getTurnAroundTime()-processing.getInitialExecSize());
                     PPProcessed.add(processing);//metric tracking
-                    PPThreads.add(processing);
                 }
-                if (sortedReadyQueue.size() > 0) {
+                if (readyQueue.size() > 0) {
                     time += dispatchTime;//factor in the time required to run the dispatcher
-                    processing = sortedReadyQueue.get(0);//get the next process with the highest priority from the readyQueue
-                    sortedReadyQueue.remove(processing);
+                    processing = readyQueue.get(0);//get the next process with the highest priority from the readyQueue
+                    readyQueue.remove(processing);
+                    //readyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
-                    if (processing.getWaitingTime() <= 0) {
-                        processing.setWaitingTime(-(processing.getArrive() - time));
-                    }
+                    processing.setStartTime(time);
+                    PPTimes.add(processing);
                     processingTimeRemaining = processing.getExecSize();//set how long this process has to go
                 } else if (temp.isEmpty()) {
                     allItemsExecuted = true;
@@ -251,6 +258,7 @@ public class Algorithms {
     public void PRR(){
         ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
         ArrayList<SchedulerProcess> readyQueue = new ArrayList<>();
+        sortedReadyQueue = new ArrayList<>();
         SchedulerProcess processing = null;//Current item that is being processed = processing
         int quantumTimeRemaining = 0, processingTimeRemaining = 0, time = 0;//tracking for what the highest priority process is in the queue
         boolean allItemsExecuted = false;
@@ -263,7 +271,6 @@ public class Algorithms {
                     processing.setTurnAroundTime(-(processing.getArrive() - time));
                     processing.setWaitingTime(processing.getTurnAroundTime()-processing.getInitialExecSize());
                     PRRProcessed.add(processing);//metric tracking
-                    PRRThreads.add(processing);
 
                 }
                 if (readyQueue.size() > 0) {
@@ -272,6 +279,8 @@ public class Algorithms {
                     readyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
                     processingTimeRemaining = processing.getExecSize();//set how long this process has to go
+                    processing.setStartTime(time);
+                    PRRTimes.add(processing);
                     if (processing.isHPC()){
                         quantumTimeRemaining = quantumTimeHPC;
                     } else {
@@ -295,14 +304,15 @@ public class Algorithms {
                 } else if (readyQueue.size()>0){
                     time += dispatchTime;//factor in the time required to run the dispatcher
                     if (processing!=null){
-                        processing.setExecSize(processing.getExecSize() + processingTimeRemaining-processing.getExecSize());//decrease execution time by the amount executed
-                        PRRThreads.add(processing);
+                        processing.setExecSize(processingTimeRemaining);//decrease execution time by the amount executed
                     }
                     processing = new SchedulerProcess(processing);
                     addProcessBack(processing,readyQueue);
                     processing = readyQueue.get(0);
                     readyQueue.remove(processing);
                     processing = new SchedulerProcess(processing);
+                    processing.setStartTime(time);
+                    PRRTimes.add(processing);
                     processingTimeRemaining = processing.getExecSize();
                     if (processing.isHPC()){
                         quantumTimeRemaining = quantumTimeHPC;
@@ -324,40 +334,40 @@ public class Algorithms {
 
     public void getOutput(){//display the output formatted as it was in the output files given
         String algName = "";
-        ArrayList<SchedulerProcess> output = null, threadsOut = null;
+        ArrayList<SchedulerProcess> output = null, Times = null;
         int processedSize = 0, counter = 0;;
         for (int i = 0; i < 4; i++) {
             switch (i){
                 case 0: algName = "FCFS";
                 output = FCFSProcessed;
-                threadsOut = FCFSProcessed;
+                Times = FCFSTimes;
                 processedSize = output.size();
                 counter = 0;
                 break;
                 case 1: algName = "SPN";
                     output = SPNProcessed;
-                    threadsOut = SPNProcessed;
+                    Times = SPNTimes;
                     processedSize = output.size();
                     counter = 0;
                     break;
                 case 2: algName = "PP";
                     output = PPProcessed;
-                    threadsOut = PPThreads;
+                    Times = PPTimes;
                     processedSize = output.size();
                     counter = 0;
                     break;
                 case 3: algName = "PRR";
                     output = PRRProcessed;
-                    threadsOut = PRRThreads;
+                    Times = PRRTimes;
                     processedSize = output.size();
                     counter = 0;
                     break;
             }
             System.out.println("\n"+algName);
-            for (int j = 0; j < threadsOut.size(); j++) {
-                System.out.println("T" + threadsOut.get(j).getWaitingTime() + ": " + threadsOut.get(j).getID() + "(" + threadsOut.get(j).getPriority() + ")");
+            for (int j = 0; j < Times.size(); j++) {
+                System.out.println("T" + Times.get(j).getStartTime() + ": " + Times.get(j).getID() + "(" + Times.get(j).getPriority() + ")");
             }
-            System.out.println("Process\tTurnaround Time\tWaiting Time");
+            System.out.println("\nProcess\tTurnaround Time\tWaiting Time");
 
             while (counter<processes.size()){
 
@@ -369,6 +379,52 @@ public class Algorithms {
                 counter++;
             }
 
+        }
+
+        System.out.println("\nSummary");
+        System.out.println("Algorithm\tAverage Turnaround Time\tAverage Waiting Time");
+        int waitCount = 0, turnCount = 0;
+        for (int i = 0; i < 4; i++) {
+            switch (i) {
+                case 0:
+                    algName = "FCFS";
+                    output = FCFSProcessed;
+                    turnCount = 0;
+                    waitCount = 0;
+                    break;
+                case 1:
+                    algName = "SPN";
+                    output = SPNProcessed;
+                    turnCount = 0;
+                    waitCount = 0;
+                    break;
+                case 2:
+                    algName = "PP";
+                    output = PPProcessed;
+                    turnCount = 0;
+                    waitCount = 0;
+                    break;
+                case 3:
+                    algName = "PRR";
+                    output = PRRProcessed;
+                    turnCount = 0;
+                    waitCount = 0;
+                    break;
+            }
+            for (int j = 0; j < output.size(); j++) {
+                turnCount += output.get(j).getTurnAroundTime();
+                waitCount += output.get(j).getWaitingTime();
+            }
+            int extraSpaces = 4 - algName.length();
+            String extraSpace = "";
+            for (int j = 0; j < extraSpaces; j++) {
+                extraSpace += " ";
+            }
+            double size = output.size();
+            DecimalFormat df = new DecimalFormat("#.00");
+            String avgTurn = df.format(turnCount / size);
+            String avgWait = df.format(waitCount/size);
+            System.out.println(algName + extraSpace + "\t\t" + avgTurn + "\t\t\t\t\t" + avgWait);
         }
     }
 }

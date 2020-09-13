@@ -7,6 +7,7 @@ public class SchedulerProcess{
     private int execSize;
     private int initialExecSize;
     private int priority;
+    private int startTime;
     private int turnAroundTime;
     private int waitingTime;
     private Boolean isHPC;
@@ -17,6 +18,7 @@ public class SchedulerProcess{
         execSize = -1;
         initialExecSize =-1;
         priority = -1;
+        startTime = -1;
         turnAroundTime = -1;
         waitingTime = -1;
         isHPC = null;
@@ -26,6 +28,7 @@ public class SchedulerProcess{
         this.ID = s.ID;
         this.arrive = s.arrive;
         this.execSize = s.execSize;
+        this.startTime = s.startTime;
         this.initialExecSize = s.initialExecSize;
         this.priority = s.priority;
     }
@@ -67,6 +70,10 @@ public class SchedulerProcess{
         isHPC = priority < 3;
     }
 
+    public void setStartTime(int s) {
+        startTime = s;
+    }
+
     public String getID() {
         return ID;
     }
@@ -93,6 +100,10 @@ public class SchedulerProcess{
 
     public int getInitialExecSize() {
         return initialExecSize;
+    }
+
+    public int getStartTime() {
+        return startTime;
     }
 
     public boolean isIDBefore(SchedulerProcess p){
