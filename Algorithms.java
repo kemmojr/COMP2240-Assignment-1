@@ -5,9 +5,8 @@ public class Algorithms {
 
     private int dispatchTime, quantumTimeHPC, quantumTimeLPC;
     private ArrayList<SchedulerProcess> processes, FCFSProcessed, FCFSTimes, SPNProcessed, SPNTimes, PPProcessed, PPTimes, PRRProcessed, PRRTimes;
-    private ArrayList<SchedulerProcess> sortedReadyQueue;
 
-    public Algorithms(Scanner inputReader){
+    public Algorithms(Scanner reader){
         //Go through the input file and convert all the process data into process classes
         FCFSProcessed = new ArrayList<>();
         FCFSTimes = new ArrayList<>();
@@ -17,32 +16,31 @@ public class Algorithms {
         PPTimes = new ArrayList<>();
         PRRProcessed = new ArrayList<>();
         PRRTimes = new ArrayList<>();
-        sortedReadyQueue = new ArrayList<>();
         String current = "";
         quantumTimeHPC = 4;//CHANGE THIS VALUE TO ALTER THE QUANTUM TIME OF PRR
         quantumTimeLPC = 2;//CHANGE THIS VALUE TO ALTER THE QUANTUM TIME OF PRR
         processes = new ArrayList<>();
         while (!current.equalsIgnoreCase("EOF")){//Scan the whole file
-            current = inputReader.next();
+            current = reader.next();
             if (current.equalsIgnoreCase("DISP:")){//get the dispatch time
-                current = inputReader.next();
+                current = reader.next();
                 dispatchTime = Integer.parseInt(current);
             }
 
             if (current.equalsIgnoreCase("ID:")){//get the ID
                 SchedulerProcess p = new SchedulerProcess();
-                p.setID(inputReader.next());
+                p.setID(reader.next());
                 while (!current.equalsIgnoreCase("END")){//continue to read until we reach the end of the process
                     if (current.equalsIgnoreCase("Arrive:")){//set arrive
-                        p.setArrive(inputReader.nextInt());
+                        p.setArrive(reader.nextInt());
                     } else if (current.equalsIgnoreCase("ExecSize:")){//set execution size
-                        int exec = inputReader.nextInt();
+                        int exec = reader.nextInt();
                         p.setExecSize(exec);
                         p.setInitialExecSize(exec);
                     } else if (current.equalsIgnoreCase("Priority:")){//set priority
-                        p.setPriority(inputReader.nextInt());
+                        p.setPriority(reader.nextInt());
                     }
-                    current = inputReader.next();
+                    current = reader.next();
                 }
                 processes.add(p);
             }
@@ -259,7 +257,6 @@ public class Algorithms {
     public void PRR(){
         ArrayList<SchedulerProcess> temp = new ArrayList<>(processes);
         ArrayList<SchedulerProcess> readyQueue = new ArrayList<>();
-        sortedReadyQueue = new ArrayList<>();
         SchedulerProcess processing = null;//Current item that is being processed = processing
         int quantumTimeRemaining = 0, processingTimeRemaining = 0, time = 0;//tracking for what the highest priority process is in the queue
         boolean allItemsExecuted = false;
